@@ -1,0 +1,32 @@
+import pandas as pd
+from math import radians, cos, sin, asin, sqrt
+
+# Función para calcular distancia (Fórmula de Haversine)
+def calcular_distancia(lat1, lon1, lat2, lon2):
+    R = 6371 # Radio de la Tierra en Kilómetros
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    return 2 * R * asin(sqrt(a))
+
+# 1. Leer el archivo
+print("Leyendo datos...")
+df = pd.read_csv('puntos.csv')
+coords = df[['lat', 'lon']].values
+n = len(coords)
+
+# 2. Crear la matriz
+print(f"Calculando matriz de {n}x{n}...")
+matriz = []
+for i in range(n):
+    fila = []
+    for j in range(n):
+        dist = calcular_distancia(coords[i][0], coords[i][1], coords[j][0], coords[j][1])
+        fila.append(round(dist, 3)) # Guardar con 3 decimales
+    matriz.append(fila)
+
+# 3. Guardar el resultado
+df_matriz = pd.DataFrame(matriz)
+df_matriz.to_csv('matriz_final.csv', index=False, header=False)
+print("¡Listo! Tu matriz se guardó en 'matriz_final.csv'")
